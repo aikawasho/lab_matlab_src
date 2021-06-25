@@ -1,0 +1,10 @@
+csv = zeros(180,8);
+csv(:,1) = sp_x;
+csv(:,2) = sp_y;
+csv(:,3) = sp_z;
+ab = sqrt(sp_x.^2+sp_y.^2+sp_z.^2);
+csv(:,4) = -sp_x./ab;
+csv(:,5) = -sp_y./ab;
+csv(:,6) = -sp_z./ab;
+csv(:,7) = -sp_x./ab;
+csv(:,5) = -sp_y./ab;
