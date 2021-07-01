@@ -44,12 +44,12 @@ for tp_z = 0:5:0
     %グラフ表示するか
     graph = 1;
     %グラフ保存するか
-    save_graph = 1;
+    save_graph = 0;
     %読み込みファイルパス
     file_name = './phase/20201105/no-0.0.mat';
-    delta_x = 0.1;
-    delta_y = 0.1;
-    delta_z = 0.1;
+    delta_x = 0.5;
+    delta_y = 0.5;
+    delta_z = 0.5;
     x = (-20:delta_x:20);
     y = (-20:delta_y:20);
     z = (wall_z:delta_z:wall_z+40);
@@ -60,7 +60,7 @@ for tp_z = 0:5:0
     omega = 2*pi*f;
     k = omega/c0;
     P00 = 0.17;
-    A = 15;
+    A = 15*0.34;
     %ピストンの半径
     a =4.5;
     %アレイ半径
@@ -70,6 +70,9 @@ for tp_z = 0:5:0
     sp_x = zahyo.X;
     sp_y = zahyo.Y;
     sp_z = zahyo.Z;
+    x_r = -sp_x;
+    y_r = -sp_y;
+    z_r = -sp_z;
     %縦に並ぶトランデューサの数
     theta_sp_num = 8;
     %鏡z座標
@@ -165,7 +168,9 @@ for tp_z = 0:5:0
 
         U = poten_cal(P,delta_x,delta_y,delta_z,c0,omega);
         slice(X,Y,Z,U,xslice,yslice,zslice)
-
+        
+        %発散
+        L = 6*del2(U);
         view(90,0)
         xlabel('x (mm)','FontSize',30);
         ylabel('y (mm)','FontSize',30);
@@ -216,7 +221,30 @@ for tp_z = 0:5:0
         c = colorbar;
         caxis([-10 10])
 %         c.Label.String = 'The Gor’kov potential';
-        c.Label.String = 'Sound pressure level(dB)';
+        c.Label.String = 'sound pressure level(dB)';
+        hold on
+        point = plot3(0,0,tp,'o','Color','w','MarkerSize',8,'MarkerFaceColor',[0.8,0.8,0.8]);
+        colormap hot
+        axis equal
+        if save_graph == 1
+            saveas(gcf,sprintf('./210621/noref_%.1f.png', tp(3)))
+        end
+        
+        figure(4)
+        slice(X,Y,Z,L,xslice,yslice,zslice)
+                view(90,0)
+        xlabel('y (mm)');
+        ylabel('x (mm)');
+        zlabel('z (mm)');
+        ax = gca;
+        ax.FontSize = 15;
+%         title("Potential field")
+        %title("Amplitude field")
+        shading interp
+        c = colorbar;
+        %caxis([-10 10])
+        c.Label.String = 'the divergence of the gor’kov potential';
+        %c.Label.String = 'Sound pressure level(dB)';
         hold on
         point = plot3(0,0,tp,'o','Color','w','MarkerSize',8,'MarkerFaceColor',[0.8,0.8,0.8]);
         colormap hot
@@ -233,12 +261,12 @@ for tp_z = 0:5:0
     end
     %csvファイルの保存
     %振幅位相の保存
-%     filename = './csv/210625/w-25_phase_0.csv';
-%     table1 = table(sp_x,sp_y,sp_z,x_r,y_r,z_r,ang,pow);
-%     writetable(table1,filename);
+    filename = './csv/210625/w-25_phase_0.csv';
+    table1 = table(sp_x/delta_x,sp_y/delta_z,sp_z/delta_z,x_r/delta_x,y_r/delta_y,z_r/delta_z);
+    writetable(table1,filename);
     
     % %音圧の保存
-    filename = './csv/210625/w-25_SPL0.csv';
-    table2 = table(reshape(X,length(x)*length(y)*length(z),1),reshape(Y,length(x)*length(y)*length(z),1),reshape(Z,length(x)*length(y)*length(z),1),reshape(Power,length(x)*length(y)*length(z),1));
+    filename = './csv/210625/w-25_SPL05.csv';
+    table2 = table(reshape(X/delta_x,length(x)*length(y)*length(z),1),reshape(Y/delta_y,length(x)*length(y)*length(z),1),reshape(Z/delta_z,length(x)*length(y)*length(z),1),reshape(L,length(x)*length(y)*length(z),1));
     writetable(table2,filename);
 end

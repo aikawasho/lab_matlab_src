@@ -22,7 +22,7 @@ wy = 1;
 wz = 1;
 
 close all
-for tp_z = -18:0.1:-18
+for tp_z = -20:0.1:-20
     %トラップ位置
     tp = [0,0,tp_z];
     %力表示するかどうか
@@ -107,13 +107,13 @@ for tp_z = -18:0.1:-18
         figure (2)
         hold on
         for n = 1:length(sp_x)
-
+                A = 0;
                 xx = 0;
-%                 if reverse  == 1
-%                     if sp_z(n) > 30 
-%                         xx =1;
-%                     end
-%                 end
+                 if reverse  == 1
+                     if 20< sp_z(n) < 40 
+                         A = 15;
+                     end
+                 end
 
                 P_im = 0;
 

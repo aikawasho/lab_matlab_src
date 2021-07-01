@@ -24,7 +24,7 @@ for tp_z = -21:1:-0
     %グラフ表示するかどうか
     write_graph = 1;
     %csv保存するか
-    save_csv = 1;
+    sace_csv = 1;
     %重り分散
     dd = 100;
     delta = [dd,0,0;0,dd,0;0,0,dd];

@@ -31,12 +31,13 @@ function f = bottle_ob_fun(phi)
     
     P = zeros(size(X));
     for n = 1:length(sp_x)
+        A = 0;
         xx = 0;
-%         if reverse  == 1
-%             if sp_z(n) > 30 
-%                 xx =1;
-%             end
-%         end
+        if reverse  == 1
+            if 20< sp_z(n) < 40  
+                A = 1;
+            end
+        end
 %         
         P_im = 0;
         P0 = theory_p(k,a,X,Y,Z,sp_x(n),sp_y(n),sp_z(n),0);
@@ -45,7 +46,7 @@ function f = bottle_ob_fun(phi)
             P_im = theory_p(k,a,X,Y,Z,sp_x(n),sp_y(n),im_z(n),wall_z*2);
         end
         
-        P = P+(P0+P_im)*exp(1j*(phi(ph_n)+pi*xx));
+        P = P+A*(P0+P_im)*exp(1j*(phi(ph_n)+pi*xx));
         if n < length(sp_x) && (sp_z(n) ~= sp_z(n+1))
             ph_n = ph_n +1;
             if ph_n == theta_sp_num+1

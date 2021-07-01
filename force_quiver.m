@@ -29,7 +29,7 @@ wz = 1;
 close all
 z_dis = (-10:10);
 
-for tp_z = -0:1:-0
+for tp_z = -21:1:-21
 
     %トラップ位置
     tp = [0,0,tp_z];
@@ -52,7 +52,7 @@ for tp_z = -0:1:-0
     %ファイル名
     name = './210507/LS_';
     %読み込みファイルパス
-    file_name = sprintf('./phase/210428/LSGw-25%.1f.mat', tp(3));
+    file_name = sprintf('./phase/210629/LSGw-25_min%.1f.mat', tp(3));
     %振幅読み込むかどうか
     load_A = 1;
     
@@ -182,7 +182,7 @@ for tp_z = -0:1:-0
         title('Acoustic Radiation Force x-z plane')
         c = colorbar;
         c.Label.String = 'The Gor’kov potential';
-        caxis([0 1.5])
+        %caxis([0 1.5])
         view(0,90)
         axis equal
         hold off
@@ -209,7 +209,7 @@ for tp_z = -0:1:-0
         title('Acoustic Radiation Force x-y plane')
         c = colorbar;
         c.Label.String = 'The Gor’kov potential';
-        caxis([0 1.5])
+        %caxis([0 1.5])
         view(0,90)
         axis equal
         hold off
