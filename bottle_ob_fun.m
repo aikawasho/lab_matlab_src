@@ -34,7 +34,7 @@ function f = bottle_ob_fun(phi)
         A = 0;
         xx = 0;
         if reverse  == 1
-            if 20< sp_z(n) < 40  
+            if 0< sp_z(n) < 10
                 A = 1;
             end
         end

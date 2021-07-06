@@ -29,14 +29,14 @@ wz = 1;
 close all
 z_dis = (-10:10);
 
-for tp_z = -21:1:-21
+for tp_z = -0:1:-0
 
     %トラップ位置
     tp = [0,0,tp_z];
     %力表示するかどうか
     force_on = 0; 
     %反射有りかどうか
-    reflect_on = 1;
+    reflect_on = 0;
     %位相反転するかどうか
     reverse = 1;
     %アレイ位置表示するかどうk
@@ -48,9 +48,9 @@ for tp_z = -21:1:-21
 
     
     %グラフ保存するか
-    save_graph = 0;
+    save_graph = 1;
     %ファイル名
-    name = './210507/LS_';
+    name = './210701/divergence';
     %読み込みファイルパス
     file_name = sprintf('./phase/210629/LSGw-25_min%.1f.mat', tp(3));
     %振幅読み込むかどうか
@@ -151,7 +151,8 @@ for tp_z = -21:1:-21
     U_xy = poten_cal_2d(P_xy,delta_x,delta_z,c0,omega);
     %蚊にかかる重力24.5 mN
     %半径1.5mmのEPSにかかる重力 0.004 mN
-    
+    L_yz = 6*del2(U_yz);
+    L_xy = 6*del2(U_xy);
     [F_y1, F_z1] = gradient(U_yz,delta_y,delta_z);
     F_y1((Z1<= wall_z)) = 0;
     F_z1((Z1<= wall_z)) = 0;
@@ -166,10 +167,10 @@ for tp_z = -21:1:-21
 %     end
 
     figure(1)
-        surf(Y2,Z_dis,U_yz,'FaceAlpha',0.5)
+        surf(Y2,Z_dis,L_yz,'FaceAlpha',0.5)
         shading interp
         hold on 
-        quiver(Y00,Z_dis,-F_y1,-F_z1,1.0,'Color',[0,0,0])
+        quiver(Y00,Z_dis,-F_y1,-F_z1,1.1,'Color',[0,0,0])
         hold on 
         point1 = scatter(tp(2),tp(3),250,'MarkerEdgeColor',[0.8,0.8,0.8],'MarkerFaceColor',[0.8,0.8,0.8],'MarkerFaceAlpha',0.5);
         %quiver(Y,Z,F_y,F_z)
@@ -181,9 +182,11 @@ for tp_z = -21:1:-21
         ylabel('z-axis displacement of desired trap position (mm)');
         title('Acoustic Radiation Force x-z plane')
         c = colorbar;
-        c.Label.String = 'The Gor’kov potential';
-        %caxis([0 1.5])
+%         c.Label.String = 'The Gor’kov potential';
+        c.Label.String  = 'divergence of potential field';
+        caxis([-1.5 1.5])
         view(0,90)
+        colormap jet
         axis equal
         hold off
 
@@ -193,10 +196,10 @@ for tp_z = -21:1:-21
     end
 
     figure(2)
-        surf(Y1,X2,U_xy,'FaceAlpha',0.5)
+        surf(Y1,X2,L_xy,'FaceAlpha',0.5)
         shading interp
         hold on 
-        quiver(Y00,Z_dis,-F_x2,-F_z2,1.0,'Color',[0,0,0])
+        quiver(Y00,Z_dis,-F_x2,-F_z2,1.1,'Color',[0,0,0])
         
         point2 = scatter(0,0,250,'MarkerEdgeColor',[0.8,0.8,0.8],'MarkerFaceColor',[0.8,0.8,0.8],'MarkerFaceAlpha',0.5);
         %quiver(Y,Z,F_y,F_z)
@@ -208,8 +211,10 @@ for tp_z = -21:1:-21
         ylabel('y-axis displacement of desired trap position (mm)');
         title('Acoustic Radiation Force x-y plane')
         c = colorbar;
-        c.Label.String = 'The Gor’kov potential';
-        %caxis([0 1.5])
+%         c.Label.String = 'The Gor’kov potential';
+        c.Label.String = 'divergence of potential field';
+        caxis([-1.5 1.5])
+        colormap jet
         view(0,90)
         axis equal
         hold off

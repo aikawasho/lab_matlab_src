@@ -2,7 +2,8 @@ close all
 delta_x = 0.5;
 delta_y = 0.5;
 delta_z = 0.5;
-for tp_z = -21:1:-0
+index = 0;
+for tp_z = -25:1:0
     %トラップ位置Z
     tp = tp_z;
     %力表示するかどうか
@@ -23,7 +24,7 @@ for tp_z = -21:1:-0
     save_graph = 0;
     %グラフ表示するかどうか
     write_graph = 1;
-    %csv保存するか
+    %音圧保存するか
     save_csv = 1;
     %重り分散
     dd = 100;
@@ -157,9 +158,6 @@ for tp_z = -21:1:-0
                     if sp_y(n) < 0 
                         xx =1;
                     end
-                     if 20< sp_z(n) < 40 
-                         A = 0;
-                     end
                 end
 
                 P_im = 0;
@@ -173,7 +171,7 @@ for tp_z = -21:1:-0
                     P_im2 = theory_p(k,a,X,Y,Z,sp_x(n),sp_y(n),im_z2(n),30);
                 end
 
-                P = P+(P0+P_im+P_im2)*exp(1j*(pi*xx))*w(p_n);
+                P = P+P00*A*(P0+P_im+P_im2)*exp(1j*(pi*xx))*w(p_n);
                 ISO = mod(angle(w(p_n))+pi*xx,2*pi);
                 ang(n) = ISO;
                 pow(n) = abs(w(p_n));
@@ -295,11 +293,12 @@ for tp_z = -21:1:-0
         %title("Amplitude field")
         shading interp
         % %音圧の保存
-        if save_csv == 1
-            filename = sprintf('./csv/210701/LSGw100-25_%.1f.csv', tp);
-            table2 = table(reshape(X/delta_x,length(x)*length(y)*length(z),1),reshape(Y/delta_y,length(x)*length(y)*length(z),1),reshape(Z/delta_z,length(x)*length(y)*length(z),1),reshape(Power,length(x)*length(y)*length(z),1));
-            writetable(table2,filename);
-        end
+    if save_csv == 1
+        filename = sprintf('./csv/210706/LSGW-25_%.0f.csv', index);
+        table2 = table(reshape(X/delta_x,length(x)*length(y)*length(z),1),reshape(Y/delta_y,length(x)*length(y)*length(z),1),reshape(Z/delta_z,length(x)*length(y)*length(z),1),reshape(L,length(x)*length(y)*length(z),1));
+        writetable(table2,filename);
+    end
+    index = index + 1;
     end
     
 

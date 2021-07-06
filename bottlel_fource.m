@@ -143,7 +143,8 @@ for num = 1:length(tp_z)
         U = poten_cal_2d(P,delta_y,delta_z,c0,omega);
         %‰á‚É‚©‚©‚éd—Í24.5 mN
         %”¼Œa1.5mm‚ÌEPS‚É‚©‚©‚éd—Í 0.004 mN
-
+        %”­U
+        L = 6*del2(U);
         [F_y, F_z] = gradient(U,delta_y,delta_z);
 
 %         st_z_under(:,num) =reshape(-F_z(6,:),size(y));

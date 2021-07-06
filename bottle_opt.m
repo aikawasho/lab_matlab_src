@@ -22,17 +22,17 @@ wy = 1;
 wz = 1;
 
 close all
-for tp_z = -20:0.1:-20
+for tp_z = -23:1:-23
     %トラップ位置
     tp = [0,0,tp_z];
     %力表示するかどうか
-    force_on = 1; 
+    force_on = 0; 
     %反射有りかどうか
     reflect_on = 1;
     %位相反転するかどうか
     reverse = 1;
     %アレイ位置表示するかどうk
-    pos_mark = 1;
+    pos_mark = 0;
     %壁の位置
     wall_z = -25;
     %位相を読み込むかどうか
@@ -42,12 +42,13 @@ for tp_z = -20:0.1:-20
     %グラフ表示するか
     graph = 1;
     %グラフ保存するか
-    save_graph = 0;
+    save_graph = 1;
+    save_csv = 0;
     %読み込みファイルパス
     file_name = './phase/20201105/no-0.0.mat';
-    delta_x = 1;
-    delta_y = 1;
-    delta_z = 1;
+    delta_x = 0.5;
+    delta_y = 0.5;
+    delta_z = 0.5;
     x = (-20:delta_x:20);
     y = (-20:delta_y:20);
     z = (wall_z:delta_z:wall_z+40);
@@ -110,8 +111,9 @@ for tp_z = -20:0.1:-20
                 A = 0;
                 xx = 0;
                  if reverse  == 1
-                     if 20< sp_z(n) < 40 
+                     if 0< sp_z(n) < 10
                          A = 15;
+                         pppp = 'あ'
                      end
                  end
 
@@ -196,9 +198,7 @@ for tp_z = -20:0.1:-20
             quiver3(X(1:span:end,1:span:end,1:span:end),Y(1:span:end,1:span:end,1:span:end),Z(1:span:end,1:span:end,1:span:end),real(F_x0),real(F_y0),real(F_z0),1,"red")
         end
         
-        if save_graph == 1
-            saveas(gcf,sprintf('./20201113/w-25_%.1f.png', tp(3)))
-        end
+
         delete(point)
         hold off
 
@@ -206,22 +206,28 @@ for tp_z = -20:0.1:-20
         slice(X,Y,Z,Power,xslice,yslice,zslice)
         view(90,0)
         ax = gca;
-        ax.FontSize = 30;
-        xlabel('x (mm)','FontSize',30);
-        ylabel('y (mm)','FontSize',30);
-        zlabel('z (mm)','FontSize',30);
-        title("Amplitude field")
+        ax.FontSize = 15;
+        xlabel('x (mm)');
+        ylabel('y (mm)');
+        zlabel('z (mm)');
+        %title("Amplitude field")
         c = colorbar;
         c.Label.String = 'Sound pressure level(dB)';
         caxis([-10,10])
         shading interp
         axis equal
-
-    %      L = 6*del2(U);
-    %      L_cent = reshape(L(21,21,:),length(z),1);
+        if save_graph == 1
+            saveas(gcf,sprintf('./210701/Bottlew-25_%.1f.png', tp(3)))
+        end
+          L = 6*del2(U);
+          %L_cent = reshape(L(21,21,:),length(z),1);
     %      figure(4)
     % 
     %      plot(L_cent)
-
+        if save_csv == 1
+            filename = sprintf('./csv/210704/LSGw100-25_DIV%.1f.csv', tp(3));
+            table2 = table(reshape(X/delta_x,length(x)*length(y)*length(z),1),reshape(Y/delta_y,length(x)*length(y)*length(z),1),reshape(Z/delta_z,length(x)*length(y)*length(z),1),reshape(L,length(x)*length(y)*length(z),1));
+            writetable(table2,filename);
+        end
     end
 end

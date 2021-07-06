@@ -22,33 +22,31 @@ wp = 1;
 wx = 1;
 wy = 1;
 wz = 1;
-index = 0;
+
 close all
-for tp_z = -21:1:0
+for tp_z = -25:0.1:-25
     %トラップ位置
     tp = [0,0,tp_z];
     %力表示するかどうか
-    force_on = 0; 
+    force_on = 1; 
     %反射有りかどうか
-    reflect_on = 1;
+    reflect_on = 0;
     %位相反転するかどうか
     reverse = 1;
     %アレイ位置表示するかどうk
-    pos_mark = 0;
+    pos_mark = 1;
     %壁の位置
     wall_z = -25;
-   
     %位相を読み込むかどうか
-    load_on = 1;
-        %読み込みファイルパス
-        file_name = sprintf('./phase/210706/W-25%.1f.mat', tp_z);
+    load_on = 0;
     %位相保存するかどうか
     save_phi = 1;
     %グラフ表示するか
     graph = 1;
     %グラフ保存するか
     save_graph =0;
-    save_csv = 1;
+    %読み込みファイルパス
+    file_name = './phase/20201105/no-0.0.mat';
     delta_x = 0.5;
     delta_y = 0.5;
     delta_z = 0.5;
@@ -62,7 +60,7 @@ for tp_z = -21:1:0
     omega = 2*pi*f;
     k = omega/c0;
     P00 = 0.17;
-    A = 15;
+    A = 15*0.35;
     %ピストンの半径
     a =4.5;
     %アレイ半径
@@ -268,10 +266,7 @@ for tp_z = -21:1:0
 %     writetable(table1,filename);
 %     
     % %音圧の保存
-    if save_csv == 1
-        filename = sprintf('./csv/210706/OpW-25_%.0f.csv', index);
-        table2 = table(reshape(X/delta_x,length(x)*length(y)*length(z),1),reshape(Y/delta_y,length(x)*length(y)*length(z),1),reshape(Z/delta_z,length(x)*length(y)*length(z),1),reshape(L,length(x)*length(y)*length(z),1));
-        writetable(table2,filename);
-    end
-    index = index + 1;
+    filename = './csv/210706/Wivw-25_-25.csv';
+    table2 = table(reshape(X/delta_x,length(x)*length(y)*length(z),1),reshape(Y/delta_y,length(x)*length(y)*length(z),1),reshape(Z/delta_z,length(x)*length(y)*length(z),1),reshape(L,length(x)*length(y)*length(z),1));
+    writetable(table2,filename);
 end
