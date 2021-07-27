@@ -16,8 +16,8 @@ function f = bottle_ob_fun(phi)
     global wp
     global theta_sp_num
     global reflect_on
-    global reverse
-    
+    global P00
+    global use_channels
     ph_n = 1;
     delta_x = 1;
     delta_y = 1;
@@ -33,11 +33,12 @@ function f = bottle_ob_fun(phi)
     for n = 1:length(sp_x)
         A = 0;
         xx = 0;
-        if reverse  == 1
-            if 0< sp_z(n) < 10
-                A = 1;
-            end
+        if  ismember(ph_n,use_channels) 
+
+                  A = 15;
         end
+
+
 %         
         P_im = 0;
         P0 = theory_p(k,a,X,Y,Z,sp_x(n),sp_y(n),sp_z(n),0);
@@ -45,8 +46,11 @@ function f = bottle_ob_fun(phi)
         if reflect_on ==1
             P_im = theory_p(k,a,X,Y,Z,sp_x(n),sp_y(n),im_z(n),wall_z*2);
         end
-        
-        P = P+A*(P0+P_im)*exp(1j*(phi(ph_n)+pi*xx));
+        ISO = phi(ph_n,1)+pi*xx;
+
+        P = P+P00*A*abs(1.5*sin(phi(ph_n,2)))*(P0+P_im)*exp(1j*ISO);
+        %P = P+A*P00*(P0+P_im)*exp(1j*ISO);
+
         if n < length(sp_x) && (sp_z(n) ~= sp_z(n+1))
             ph_n = ph_n +1;
             if ph_n == theta_sp_num+1

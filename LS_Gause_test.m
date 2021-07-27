@@ -1,9 +1,9 @@
 close all
-delta_x = 1;
-delta_y = 1;
-delta_z = 1;
+delta_x = 0.5;
+delta_y = 0.5;
+delta_z = 0.5;
 index = 0;
-for tp_z = -25:0.1:-25
+for tp_z = -21:1:-21
     %トラップ位置Z
     tp = tp_z;
     %力表示するかどうか
@@ -27,7 +27,7 @@ for tp_z = -25:0.1:-25
     %音圧保存するか
     save_csv = 0;
     %重り分散
-    dd = 50;
+    dd = 100;
     delta = [dd,0,0;0,dd,0;0,0,dd];
 
     x = (-20:delta_x:20);
@@ -56,7 +56,7 @@ for tp_z = -25:0.1:-25
     im_z = wall_z-abs(sp_z-wall_z);
     im_z2 = (-1)*im_z + 30;
     %縦に並ぶトランデューサの数
-    theta_sp_num = 8;
+    theta_sp_num = 7;
 
     w = zeros(theta_sp_num,1);
 
@@ -65,7 +65,7 @@ for tp_z = -25:0.1:-25
     CP_X = reshape(CP.cx,len,1);
     CP_Y = reshape(CP.cy,len,1);
     CP_Z = reshape(CP.cz,len,1)+tp;
-    G = zeros(length(CP_Z(CP_Z>=wall_z)),8);
+    G = zeros(length(CP_Z(CP_Z>=wall_z)),theta_sp_num);
     D = zeros(length(CP_Z(CP_Z>=wall_z)),1);
     weight = eye(length(CP_Z(CP_Z>=wall_z)),length(CP_Z(CP_Z>=wall_z)));
 
@@ -73,7 +73,7 @@ for tp_z = -25:0.1:-25
     for c_n = 1:len
         if CP_Z(c_n)>=wall_z
             ind = ind + 1;
-            g = zeros(8,1);
+            g = zeros(theta_sp_num,1);
             p_n = 1;
 
             tmp = [CP_X(c_n);CP_Y(c_n);CP_Z(c_n)];
@@ -82,7 +82,7 @@ for tp_z = -25:0.1:-25
 
 
             for n = 1:length(sp_x)
-
+                    A = 15;
                     xx = 0;
                     if reverse  == 1
                         if sp_y(n) > 0 
@@ -106,7 +106,7 @@ for tp_z = -25:0.1:-25
             end
            % D(ind) = real(CP_p(c_n))+imag(CP_p(c_n))*1j;
             D(ind) = CP_p(c_n);
-            G(ind,:) = reshape(g,1,8);
+            G(ind,:) = reshape(g,1,theta_sp_num);
         end
 
 
@@ -132,7 +132,7 @@ for tp_z = -25:0.1:-25
         sin_A = abs(w);
         phix = angle(w);
 
-        save(sprintf('./phase/210428/LSGw-25f%.1f.mat', tp),'sin_A','phix');
+        save(sprintf('./phase/210629/LSGw-25_min%.1f.mat', tp),'sin_A','phix');
     end
 
     
@@ -142,7 +142,7 @@ for tp_z = -25:0.1:-25
         p_n = 1;
         P = zeros(size(X));
         %xmlファイル作成のための
-        xms = zeros(length(sp_x),8);
+        xms = zeros(length(sp_x),theta_sp_num);
         ab = sqrt(sp_x.^2+sp_y.^2+sp_z.^2);
 
         x_r = -sp_x;
@@ -151,7 +151,7 @@ for tp_z = -25:0.1:-25
         ang = zeros(size(sp_x));
         pow = zeros(size(sp_x));
         for n = 1:length(sp_x)
-                A = 0;
+                A = 15;
 
                 xx = 0;
                 if reverse  == 1
@@ -159,6 +159,7 @@ for tp_z = -25:0.1:-25
                         xx =1;
                     end
                 end
+                
                 P_im = 0;
                 P_im2 = 0;
                 P0 = theory_p(k,a,X,Y,Z,sp_x(n),sp_y(n),sp_z(n),0);
@@ -223,9 +224,9 @@ for tp_z = -25:0.1:-25
         %発散
         L = 6*del2(U);
 
-        slice(X,Y,Z,Power,xslice,yslice,zslice)
-        caxis([-10,10])
-        colormap jet
+        slice(X,Y,Z,L,xslice,yslice,zslice)
+        
+   
         % caxis([-0.04,0.04])
         view(90,0)
         xlabel('y (mm)');
@@ -237,12 +238,12 @@ for tp_z = -25:0.1:-25
         %title("Amplitude field")
         shading interp
         c = colorbar;
-        %caxis([-0.01 0.01])
+        caxis([-0.01 0.01])
 %         c.Label.String = 'The Gor’kov potential';
         %c.Label.String = 'Sound pressure level(dB)';
         hold on
         point = plot3(0,0,tp,'o','Color','w','MarkerSize',8,'MarkerFaceColor',[0.8,0.8,0.8]);
-        %colormap hot
+        colormap hot
         axis equal
         if force_on == 1
             [F_x0, F_y0, F_z0] =  gradient(U,delta_x,delta_y,delta_z);
@@ -261,7 +262,8 @@ for tp_z = -25:0.1:-25
 
             quiver3(X(1:span:end,1:span:end,1:span:end),Y(1:span:end,1:span:end,1:span:end),Z(1:span:end,1:span:end,1:span:end),real(F_x0),real(F_y0),real(F_z0),1,"red")
         end
-        
+        axis off
+
         hold off
         if save_graph == 1
             saveas(gcf,sprintf('./210621/LSGw-25_%.1f.png', tp))
@@ -302,27 +304,3 @@ for tp_z = -25:0.1:-25
 
  
 end
-% figure(2)
-% slice(X,Y,Z,Power,xslice,yslice,zslice)
-% view(90,0)
-% ax = gca;
-% ax.FontSize = 30;
-% xlabel('x (mm)','FontSize',30);
-% ylabel('y (mm)','FontSize',30);
-% zlabel('z (mm)','FontSize',30);
-% title("Amplitude field")
-% c = colorbar;
-% c.Label.String = 'Sound pressure level(dB)';
-% shading interp
-% axis equal
-% caxis([-10 10])
-% %  L = 6*del2(U);
-% %  L_cent = reshape(L(21,21,:),length(z),1);
-% %  figure(3)
-% %  plot(L_cent)
-%csvファイルの保存
-%振幅位相の保存
-% filename = 'w-25_tp-25.csv';
-%  table1 = table(sp_x,sp_y,sp_z,x_r,y_r,z_r,ang,pow);
-% writetable(table1,filename);
-% 

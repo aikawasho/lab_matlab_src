@@ -19,7 +19,7 @@ function f = object_fun(phi)
     global reverse
     global A
     global P00
-    ph_n = 1;
+    p_n = 1;
     delta_x = 1;
     delta_y = 1;
     delta_z = 1;
@@ -46,11 +46,11 @@ function f = object_fun(phi)
             P_im = theory_p(k,a,X,Y,Z,sp_x(n),sp_y(n),im_z(n),wall_z*2);
         end
         
-        P = P+P00*A*(P0+P_im)*exp(1j*(phi(ph_n)+pi*xx));
-        if n < length(sp_x) && (sp_z(n) ~= sp_z(n+1))
-            ph_n = ph_n +1;
-            if ph_n == theta_sp_num+1
-                ph_n = 1;
+        P = P+P00*A*abs(1.5*sin(phi(p_n,2)))*(P0+P_im)*exp(1j*(phi(p_n,1)+pi*xx));
+        if n < length(sp_x) && (sp_z(n) ~= sp_z(n+1)) && (  sp_z(n+1) > 69 || sp_z(n+1) < 65 )
+            p_n = p_n +1;
+            if p_n == theta_sp_num+1
+                p_n = 1;
             end
         end
     end

@@ -1,4 +1,4 @@
-function f = object_fun(phi)
+function f = object_fun_10ch(phi)
 
     global wall_z
     global omega
@@ -34,8 +34,19 @@ function f = object_fun(phi)
     for n = 1:length(sp_x)
         xx = 0;
         if reverse  == 1
-            if sp_y(n) < 0 
+            if sp_y(n) > 0
                 xx =1;
+                
+                if ph_n == 4
+                    ph_n = 9;
+                elseif ph_n == 5
+                    ph_n = 10;
+                elseif ph_n == 6
+                    ph_n = 1;
+                else 
+                end
+
+
             end
         end
         
@@ -47,10 +58,22 @@ function f = object_fun(phi)
         end
         
         P = P+P00*A*(P0+P_im)*exp(1j*(phi(ph_n)+pi*xx));
+        
+        if ph_n == 9
+            ph_n = 4;
+        elseif ph_n == 10
+            ph_n = 5;
+        elseif ph_n == 1
+            ph_n = 6;
+        else
+        end
+
+        
         if n < length(sp_x) && (sp_z(n) ~= sp_z(n+1))
             ph_n = ph_n +1;
-            if ph_n == theta_sp_num+1
-                ph_n = 1;
+            
+            if ph_n == 8+1
+                ph_n = 2;
             end
         end
     end

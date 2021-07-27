@@ -1,4 +1,4 @@
-function f = object_fun(phi)
+function f = object_fun_12(phi)
 
     global wall_z
     global omega
@@ -19,7 +19,8 @@ function f = object_fun(phi)
     global reverse
     global A
     global P00
-    ph_n = 1;
+    global two_ch_list_rev
+    global two_ch_list
     delta_x = 1;
     delta_y = 1;
     delta_z = 1;
@@ -29,13 +30,14 @@ function f = object_fun(phi)
     z = (tp(3)-delta_z:delta_z:tp(3)+delta_z);
     [X,Y,Z] = meshgrid(x,y,z);
 
-    
+    p_n = 1;
     P = zeros(size(X));
     for n = 1:length(sp_x)
         xx = 0;
         if reverse  == 1
             if sp_y(n) < 0 
                 xx =1;
+                p_n = two_ch_list(p_n);
             end
         end
         
@@ -45,12 +47,12 @@ function f = object_fun(phi)
         if reflect_on ==1
             P_im = theory_p(k,a,X,Y,Z,sp_x(n),sp_y(n),im_z(n),wall_z*2);
         end
-        
-        P = P+P00*A*(P0+P_im)*exp(1j*(phi(ph_n)+pi*xx));
-        if n < length(sp_x) && (sp_z(n) ~= sp_z(n+1))
-            ph_n = ph_n +1;
-            if ph_n == theta_sp_num+1
-                ph_n = 1;
+        P = P+P00*A*(P0+P_im)*exp(1j*(phi(p_n)+pi*xx));
+        p_n = two_ch_list_rev(p_n);
+        if n < length(sp_x) && (sp_z(n) ~= sp_z(n+1)) && (  sp_z(n+1) > 69 || sp_z(n+1) < 65 )
+            p_n = p_n +1;
+            if p_n == theta_sp_num+1
+                p_n = 1;
             end
         end
     end

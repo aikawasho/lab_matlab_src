@@ -17,30 +17,38 @@ global reflect_on
 global reverse
 global A
 global P00
-
+global two_ch_list_rev
+global two_ch_list
 global theta_sp_num
 wp = 1;
 wx = 1;
 wy = 1;
 wz = 1;
-index = 0;
+index = 1;
 close all
-for tp_z = -0:0.1:-0
+two_ch_list = [8,9,10,4,11,6,12];
+two_ch_list_rev = [1,2,3,4,5,6,7,1,2,3,5,7];
+v = VideoWriter('./opt12ch.mp4','MPEG-4');
+v.Quality = 100;
+open(v);
+loops = length( -25:0.05:0);
+F(loops) = struct('cdata',[],'colormap',[]);
+for tp_z = -25:0.1:-0
     %トラップ位置
     tp = [0,0,tp_z];
     %力表示するかどうか
     force_on = 0; 
     %反射有りかどうか
-    reflect_on = 0;
+    reflect_on =1;
     %位相反転するかどうか
     reverse = 1;
     %アレイ位置表示するかどうk
-    pos_mark = 0;
+    pos_mark = 1;
     %壁の位置
     wall_z = -25;
    
     %位相を読み込むかどうか
-    load_on = 5;
+    load_on = 0;
         %読み込みファイルパス
         file_name = sprintf('./phase/210706/W-25%.1f.mat', tp_z);
     %位相保存するかどうか
@@ -55,7 +63,7 @@ for tp_z = -0:0.1:-0
     delta_z = 1;
     x = (-20:delta_x:20);
     y = (-20:delta_y:20);
-    z = (wall_z:delta_z:wall_z+40);
+    z = (-25:delta_z:15);
     [X,Y,Z] = meshgrid(x,y,z);
 
     c0 = 346*1000;
@@ -77,26 +85,27 @@ for tp_z = -0:0.1:-0
     y_r = -sp_y;
     z_r = -sp_z;
     %縦に並ぶトランデューサの数
-    theta_sp_num = 8;
+    theta_sp_num = 7;
     %鏡z座標
     im_z = wall_z-abs(sp_z-wall_z);
-
+   
     if load_on == 0
-        phi0 = zeros(theta_sp_num,1);
+        phi0 = zeros(12,1);
         options = optimoptions(@fmincon,'Display','iter','FunvalCheck','on','MaxFunctionEvaluations',3000,'PlotFcn','optimplotfval');
         % filename = 'PlotFcns0818_1'+string(tp)+'.fig';
-        fun = @object_fun;
+        fun = @object_fun_12;
         [phix,fval] = fminunc(fun,phi0,options);
         % saveas(gcf,filename)
-    elseif load_on == 1
-        phix = load(file_name);
-        phix = phix.phix;
-    else
-        phix = zeros(theta_sp_num,1);
+        
+        elseif load_on == 1
+            phix = load(file_name);
+            phix = phix.phix;
+        else
+            phix = zeros(theta_sp_num,1);
     end
 
     if save_phi == 1
-        save(sprintf('./phase/210713/OpNoref%.1f.mat', tp(3)),'phix');
+        save(sprintf('./phase/210713/Op-25_7%.1f.mat', tp(3)),'phix');
     %     save('./phase/20201013/gradation.mat','phix');
     end
 
@@ -108,7 +117,7 @@ for tp_z = -0:0.1:-0
     % end
     %     
     if graph == 1
-        ph_n = 1;
+        p_n = 1;
         P = zeros(size(X));
         qc = zeros(length(sp_x),3);
 
@@ -120,6 +129,7 @@ for tp_z = -0:0.1:-0
                 if reverse  == 1
                     if sp_y(n) > 0
                         xx =1;
+                        p_n = two_ch_list(p_n);
                     end
                 end
 
@@ -132,7 +142,7 @@ for tp_z = -0:0.1:-0
                     P_im = theory_p(k,a,X,Y,Z,sp_x(n),sp_y(n),im_z(n),wall_z*2);
                 end
 
-                ISO = phix(ph_n)+pi*xx;
+                ISO = phix(p_n)+pi*xx;
                 P = P+P00*A*(P0+P_im)*exp(1j*ISO);
 
 
@@ -142,19 +152,22 @@ for tp_z = -0:0.1:-0
 
                      if tmp < pi
                          qc = [1-tmp/pi,0,0]; %赤
+                         %qc = [1-p_n/12,0,0]; %赤
                      else
                          qc = [(tmp-pi)/pi,(tmp-pi)/pi,1];  %青
+                         %qc = [1-p_n/12,0,0]; %赤
+                         
                      end
 
                      q = quiver3(sp_x(n),sp_y(n),sp_z(n),-sp_x(n),-sp_y(n),-sp_z(n),0.05);
                      q.LineWidth = 5;
                      q.Color = qc;
                  end
-
-                if n < length(sp_x) && (sp_z(n) ~= sp_z(n+1))
-                    ph_n = ph_n +1;
-                    if ph_n == theta_sp_num+1
-                        ph_n = 1;
+                 p_n = two_ch_list_rev(p_n);
+                if n < length(sp_x) && (sp_z(n) ~= sp_z(n+1)) && (  sp_z(n+1) > 69 || sp_z(n+1) < 65 )
+                    p_n = p_n +1;
+                    if p_n == theta_sp_num+1
+                        p_n = 1;
                     end
                 end
 
@@ -211,8 +224,14 @@ for tp_z = -0:0.1:-0
         hold off
 
         figure(3)
+        
+      
         slice(X,Y,Z,Power,xslice,yslice,zslice)
-                view(90,0)
+        caxis([-10,10])
+        colormap jet
+
+        % caxis([-0.04,0.04])
+        view(90,0)
         xlabel('y (mm)');
         ylabel('x (mm)');
         zlabel('z (mm)');
@@ -221,18 +240,39 @@ for tp_z = -0:0.1:-0
 %         title("Potential field")
         %title("Amplitude field")
         shading interp
-        c = colorbar;
-        caxis([-10 10])
+        %caxis([-0.01 0.01])
 %         c.Label.String = 'The Gor’kov potential';
-        c.Label.String = 'sound pressure level(dB)';
+        %c.Label.String = 'Sound pressure level(dB)';
         hold on
-        %point = plot3(0,0,tp,'o','Color','w','MarkerSize',8,'MarkerFaceColor',[0.8,0.8,0.8]);
+        %目標位置
+        point = plot3(tp(1),tp(2),tp(3),'o','Color','w','MarkerSize',4,'MarkerFaceColor',[0.8,0.8,0.8]);
         %colormap hot
-        caxis([-10,10])
-        colormap jet
         axis equal
+        if force_on == 1
+            [F_x0, F_y0, F_z0] =  gradient(U,delta_x,delta_y,delta_z);
+            span = 2;
+            F_x0 = -F_x0(1:span:end,1:span:end,1:span:end); F_y0 = -F_y0(1:span:end,1:span:end,1:span:end); F_z0 = -F_z0(1:span:end,1:span:end,1:span:end);
+
+            F_x0 = F_x0/max(max(max(F_x0)));
+            F_x0(abs(F_x0)<0.5) = 0;
+
+            F_y0 = F_y0/max(max(max(F_y0)));
+            F_y0(abs(F_y0)<0.5) = 0;
+
+
+            F_z0 = F_z0/max(max(max(F_z0)));
+            F_z0(abs(F_z0)<0.5) = 0;
+
+            quiver3(X(1:span:end,1:span:end,1:span:end),Y(1:span:end,1:span:end,1:span:end),Z(1:span:end,1:span:end,1:span:end),real(F_x0),real(F_y0),real(F_z0),1,"red")
+        end
+        F(index) = getframe(gca);
+        for fff = 1:10
+            writeVideo(v,F(index));
+        end
+        delete(point)
+        hold off
         if save_graph == 1
-            saveas(gcf,sprintf('./210621/noref_%.1f.png', tp(3)))
+            saveas(gcf,sprintf('./210621/LSGw-25_%.1f.png', tp))
         end
         
         figure(4)
@@ -241,6 +281,9 @@ for tp_z = -0:0.1:-0
         xlabel('y (mm)');
         ylabel('x (mm)');
         zlabel('z (mm)');
+        xlim([min(x),max(x)])
+        ylim([min(y),max(y)])
+        zlim([min(z),max(z)])
         ax = gca;
         ax.FontSize = 15;
 %         title("Potential field")
@@ -251,8 +294,8 @@ for tp_z = -0:0.1:-0
         c.Label.String = 'the divergence of the gor’kov potential';
         %c.Label.String = 'Sound pressure level(dB)';
         hold on
-        point = plot3(0,0,tp,'o','Color','w','MarkerSize',8,'MarkerFaceColor',[0.8,0.8,0.8]);
-        %colormap hot
+        %point = plot3(tp(1),tp(2),tp(3),'o','Color','w','MarkerSize',8,'MarkerFaceColor',[0.8,0.8,0.8]);
+        colormap hot
         axis equal
         if save_graph == 1
             saveas(gcf,sprintf('./210621/noref_%.1f.png', tp(3)))
@@ -278,3 +321,4 @@ for tp_z = -0:0.1:-0
     end
     index = index + 1;
 end
+close(v);

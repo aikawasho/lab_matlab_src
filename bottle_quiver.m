@@ -26,7 +26,7 @@ wz = 1;
 close all
 z_dis = (-10:10);
 
-for tp_z = -16:4:-16
+for tp_z = -22:4:-22
 
     %トラップ位置
     tp = [0,0,tp_z];
@@ -49,7 +49,7 @@ for tp_z = -16:4:-16
     %グラフ保存するか
     save_graph = 0;
     %読み込みファイルパス
-    file_name = sprintf('./phase/210501/BoW-25%.1f.mat', tp(3));
+    file_name = sprintf('./phase/210707/BW-25%.1f.mat', tp(3));
 
     
     delta_x = 1;
@@ -108,13 +108,17 @@ for tp_z = -16:4:-16
 
     for n = 1:length(sp_x)
 
-            xx = 0;
-            if reverse  == 1
-                if sp_z(n) > 40 
-                    xx =1;
-                end
-            end
-
+%             xx = 0;
+% %             if reverse  == 1
+% %                 if sp_z(n) > 40 
+% %                     xx =1;
+% %                 end
+% %             end
+%                 A = 0;
+%                 xx = 0;
+%                  if 0< sp_z(n) < 10
+%                      A = 15;
+%                  end
             P_im_1 = 0;
             P_im_2 = 0;
 
@@ -179,7 +183,7 @@ for tp_z = -16:4:-16
         caxis([0 1])
         view(0,90)
         hold off
-
+        colormap jet
     if save_graph == 1
         saveas(gcf,sprintf('./210416/nut_xz%.1f.png', tp(3)))
     end
@@ -204,6 +208,7 @@ for tp_z = -16:4:-16
         caxis([0 1])
         view(0,90)
         hold off
+        colormap jet
     if save_graph == 1
         saveas(gcf,sprintf('./210416/nut_xy%.1f.png', tp(3)))
     end

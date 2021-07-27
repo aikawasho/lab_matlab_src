@@ -29,14 +29,14 @@ wz = 1;
 close all
 z_dis = (-10:10);
 
-for tp_z = -0:1:-0
+for tp_z = -21:1:-21
 
     %トラップ位置
     tp = [0,0,tp_z];
     %力表示するかどうか
     force_on = 0; 
     %反射有りかどうか
-    reflect_on = 0;
+    reflect_on = 1;
     %位相反転するかどうか
     reverse = 1;
     %アレイ位置表示するかどうk
@@ -44,15 +44,17 @@ for tp_z = -0:1:-0
     %壁の位置
     wall_z = -25;
     %位相を読み込むかどうか
-    load_on = 5;
+    load_on = 1;
 
     
     %グラフ保存するか
-    save_graph = 1;
+    save_graph = 0;
     %ファイル名
     name = './210701/divergence';
     %読み込みファイルパス
-    file_name = sprintf('./phase/210629/LSGw-25_min%.1f.mat', tp(3));
+%     file_name = sprintf('./phase/20201105/no%.1f.mat', tp(3));
+    file_name = sprintf('./phase/210428/LSGw-25%.1f.mat', tp(3));
+
     %振幅読み込むかどうか
     load_A = 1;
     
@@ -167,7 +169,7 @@ for tp_z = -0:1:-0
 %     end
 
     figure(1)
-        surf(Y2,Z_dis,L_yz,'FaceAlpha',0.5)
+        surf(Y2,X2,U_yz,'FaceAlpha',0.5)
         shading interp
         hold on 
         quiver(Y00,Z_dis,-F_y1,-F_z1,1.1,'Color',[0,0,0])
@@ -182,9 +184,9 @@ for tp_z = -0:1:-0
         ylabel('z-axis displacement of desired trap position (mm)');
         title('Acoustic Radiation Force x-z plane')
         c = colorbar;
-%         c.Label.String = 'The Gor’kov potential';
-        c.Label.String  = 'divergence of potential field';
-        caxis([-1.5 1.5])
+        c.Label.String = 'The Gor’kov potential';
+%         c.Label.String  = 'divergence of potential field';
+        caxis([0 1])
         view(0,90)
         colormap jet
         axis equal
@@ -196,7 +198,7 @@ for tp_z = -0:1:-0
     end
 
     figure(2)
-        surf(Y1,X2,L_xy,'FaceAlpha',0.5)
+        surf(Y1,X2,U_xy,'FaceAlpha',0.5)
         shading interp
         hold on 
         quiver(Y00,Z_dis,-F_x2,-F_z2,1.1,'Color',[0,0,0])
@@ -211,9 +213,9 @@ for tp_z = -0:1:-0
         ylabel('y-axis displacement of desired trap position (mm)');
         title('Acoustic Radiation Force x-y plane')
         c = colorbar;
-%         c.Label.String = 'The Gor’kov potential';
-        c.Label.String = 'divergence of potential field';
-        caxis([-1.5 1.5])
+        c.Label.String = 'The Gor’kov potential';
+%         c.Label.String = 'divergence of potential field';
+        caxis([0 1])
         colormap jet
         view(0,90)
         axis equal

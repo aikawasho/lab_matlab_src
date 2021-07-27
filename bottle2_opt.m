@@ -15,21 +15,13 @@ global wz
 global wp
 global reflect_on
 global theta_sp_num
-global P00
-global use_channels
 wp = 1;
 wx = 1;
 wy = 1;
 wz = 1;
-v = VideoWriter('./opbottle123468.mp4','MPEG-4');
-v.Quality = 100;
-open(v);
-loops = length( -25:0.05:-21);
-F(loops) = struct('cdata',[],'colormap',[]);
-close all
-for tp_z = -25:0.2:-21
-    use_channels = [1,2,3,4,6,8];
 
+close all
+for tp_z = -23:0.1:-23
     %トラップ位置
     tp = [0,0,tp_z];
     %力表示するかどうか
@@ -80,14 +72,11 @@ for tp_z = -25:0.2:-21
     im_z = wall_z-abs(sp_z-wall_z);
 
     if load_on == 0
-        %phi0 = zeros(theta_sp_num,1);
-        phi0 = ones(theta_sp_num,2);
-
-        options = optimoptions(@fminunc,'Display','iter','FunvalCheck','on','MaxFunctionEvaluations',3000,'PlotFcn','optimplotfval');
+        phi0 = zeros(theta_sp_num,1);
+        options = optimoptions(@fmincon,'Display','iter','FunvalCheck','on','MaxFunctionEvaluations',3000,'PlotFcn','optimplotfval');
         % filename = 'PlotFcns0818_1'+string(tp)+'.fig';
         fun = @bottle_ob_fun;
         [phix,fval] = fminunc(fun,phi0,options);
-
         % saveas(gcf,filename)
     elseif load_on == 1
         phix = load(file_name);
@@ -97,7 +86,7 @@ for tp_z = -25:0.2:-21
     end
 
     if save_phi == 1
-        save(sprintf('./phase/210721/ch643_Bw-25%.1f.mat', tp(3)),'phix');
+        save(sprintf('./phase/210707/ch7_Bw-25%.1f.mat', tp(3)),'phix');
     %     save('./phase/20201013/gradation.mat','phix');
     end
 
@@ -116,11 +105,11 @@ for tp_z = -25:0.2:-21
         figure (2)
         hold on
         for n = 1:length(sp_x)
-                A = 0;
-                xx = 0;
-                if  ismember(ph_n,use_channels) 
-                    A = 15;
-                end
+            xx = 0;
+
+            if sp_y(n) > 0 && ph_n ~= 6
+                xx =1;
+            end
 
 
                 P_im = 0;
@@ -133,8 +122,8 @@ for tp_z = -25:0.2:-21
                 end
 
                 ISO = phix(ph_n)+pi*xx;
-                P = P+A*P00*abs(1.5*sin(phix(ph_n,2)))*(P0+P_im)*exp(1j*ISO);
-                %P = P+A*P00*(P0+P_im)*exp(1j*ISO);
+                P = P+P00*A*(P0+P_im)*exp(1j*ISO);
+
 
                  if pos_mark ==1
 
@@ -222,11 +211,6 @@ for tp_z = -25:0.2:-21
         caxis([-10,10])
         shading interp
         axis equal
-        colormap jet
-        F(index) = getframe(gca);
-        for fff = 1:10
-            writeVideo(v,F(index));
-        end
         if save_graph == 1
             saveas(gcf,sprintf('./210707/Bottlew-25_%.1f.png', tp(3)))
         end
@@ -236,10 +220,9 @@ for tp_z = -25:0.2:-21
     % 
     %      plot(L_cent)
         if save_csv == 1
-            filename = sprintf('./csv/210712/Bottle8-25_DI_minV%.1f.csv', tp(3));
+            filename = sprintf('./csv/210704/LSGw100-25_DIV%.1f.csv', tp(3));
             table2 = table(reshape(X/delta_x,length(x)*length(y)*length(z),1),reshape(Y/delta_y,length(x)*length(y)*length(z),1),reshape(Z/delta_z,length(x)*length(y)*length(z),1),reshape(L,length(x)*length(y)*length(z),1));
             writetable(table2,filename);
         end
     end
 end
-close(v);
