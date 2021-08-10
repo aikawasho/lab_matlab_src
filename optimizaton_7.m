@@ -17,8 +17,7 @@ global reflect_on
 global reverse
 global A
 global P00
-global two_ch_list_rev
-global two_ch_list
+
 global theta_sp_num
 wp = 1;
 wx = 1;
@@ -26,9 +25,6 @@ wy = 1;
 wz = 1;
 index = 0;
 close all
-two_ch_list = [8,9,10,4,11,6,12];
-two_ch_list_rev = [1,2,3,4,5,6,7,1,2,3,5,7];
-
 for tp_z = -20:0.1:-20
     %トラップ位置
     tp = [0,0,tp_z];
@@ -54,9 +50,9 @@ for tp_z = -20:0.1:-20
     %グラフ保存するか
     save_graph =0;
     save_csv = 0;
-    delta_x = 1;
-    delta_y = 1;
-    delta_z = 1;
+    delta_x = 0.5;
+    delta_y = 0.5;
+    delta_z = 0.5;
     x = (-20:delta_x:20);
     y = (-20:delta_y:20);
     z = (0:delta_z:40);
@@ -84,12 +80,12 @@ for tp_z = -20:0.1:-20
     theta_sp_num = 7;
     %鏡z座標
     im_z = wall_z-abs(sp_z-wall_z);
-   
+
     if load_on == 0
-        phi0 = zeros(12,1);
+        phi0 = zeros(theta_sp_num,1);
         options = optimoptions(@fmincon,'Display','iter','FunvalCheck','on','MaxFunctionEvaluations',3000,'PlotFcn','optimplotfval');
         % filename = 'PlotFcns0818_1'+string(tp)+'.fig';
-        fun = @object_fun_12;
+        fun = @object_fun_7;
         [phix,fval] = fminunc(fun,phi0,options);
         % saveas(gcf,filename)
         
@@ -125,7 +121,6 @@ for tp_z = -20:0.1:-20
                 if reverse  == 1
                     if sp_y(n) > 0
                         xx =1;
-                        p_n = two_ch_list(p_n);
                     end
                 end
 
@@ -148,18 +143,15 @@ for tp_z = -20:0.1:-20
 
                      if tmp < pi
                          qc = [1-tmp/pi,0,0]; %赤
-                         %qc = [1-p_n/12,0,0]; %赤
                      else
                          qc = [(tmp-pi)/pi,(tmp-pi)/pi,1];  %青
-                         %qc = [1-p_n/12,0,0]; %赤
-                         
                      end
 
                      q = quiver3(sp_x(n),sp_y(n),sp_z(n),-sp_x(n),-sp_y(n),-sp_z(n),0.05);
                      q.LineWidth = 5;
                      q.Color = qc;
                  end
-                 p_n = two_ch_list_rev(p_n);
+
                 if n < length(sp_x) && (sp_z(n) ~= sp_z(n+1)) && (  sp_z(n+1) > 69 || sp_z(n+1) < 65 )
                     p_n = p_n +1;
                     if p_n == theta_sp_num+1

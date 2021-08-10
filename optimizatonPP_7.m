@@ -14,49 +14,48 @@ global wy
 global wz
 global wp
 global reflect_on
-global theta_sp_num
+global reverse
+global A
 global P00
-global use_channels
+
+global theta_sp_num
 wp = 1;
 wx = 1;
 wy = 1;
 wz = 1;
-v = VideoWriter('./opbottle123468.mp4','MPEG-4');
-v.Quality = 100;
-open(v);
-loops = length( -25:0.05:-21);
-F(loops) = struct('cdata',[],'colormap',[]);
+index = 0;
 close all
-for tp_z = -25:0.2:-21
-    use_channels = [1,2,3,4,6,8];
-
+for tp_z = -30:0.1:-0
     %トラップ位置
     tp = [0,0,tp_z];
     %力表示するかどうか
     force_on = 0; 
     %反射有りかどうか
-    reflect_on = 1;
+    reflect_on =1;
+    %位相反転するかどうか
+    reverse = 1;
     %アレイ位置表示するかどうk
-    pos_mark = 0;
+    pos_mark = 1;
     %壁の位置
     wall_z = -25;
+   
     %位相を読み込むかどうか
     load_on = 0;
+        %読み込みファイルパス
+        file_name = sprintf('./phase/210706/W-25%.1f.mat', tp_z);
     %位相保存するかどうか
-    save_phi = 0;
+    save_phi = 1;
     %グラフ表示するか
-    graph = 1;
+    graph = 0;
     %グラフ保存するか
-    save_graph = 0;
+    save_graph =0;
     save_csv = 0;
-    %読み込みファイルパス
-    file_name = './phase/20201105/no-0.0.mat';
-    delta_x = 1;
-    delta_y = 1;
-    delta_z = 1;
+    delta_x = 0.5;
+    delta_y = 0.5;
+    delta_z = 0.5;
     x = (-20:delta_x:20);
     y = (-20:delta_y:20);
-    z = (wall_z:delta_z:wall_z+40);
+    z = (0:delta_z:40);
     [X,Y,Z] = meshgrid(x,y,z);
 
     c0 = 346*1000;
@@ -74,30 +73,31 @@ for tp_z = -25:0.2:-21
     sp_x = zahyo.X;
     sp_y = zahyo.Y;
     sp_z = zahyo.Z;
+    x_r = -sp_x;
+    y_r = -sp_y;
+    z_r = -sp_z;
     %縦に並ぶトランデューサの数
-    theta_sp_num = 8;
+    theta_sp_num = 7;
     %鏡z座標
     im_z = wall_z-abs(sp_z-wall_z);
 
     if load_on == 0
-        %phi0 = zeros(theta_sp_num,1);
-        phi0 = ones(theta_sp_num,2);
-
-        options = optimoptions(@fminunc,'Display','iter','FunvalCheck','on','MaxFunctionEvaluations',3000,'PlotFcn','optimplotfval');
+        options = optimoptions(@fmincon,'Display','iter','FunvalCheck','on','MaxFunctionEvaluations',3000,'PlotFcn','optimplotfval');
         % filename = 'PlotFcns0818_1'+string(tp)+'.fig';
-        fun = @bottle_ob_fun;
+        fun = @object_funPP_7;
+        phi0 = ones(theta_sp_num,2);
         [phix,fval] = fminunc(fun,phi0,options);
-
         % saveas(gcf,filename)
-    elseif load_on == 1
-        phix = load(file_name);
-        phix = phix.phix;
-    else
-        phix = zeros(theta_sp_num,1);
+        
+        elseif load_on == 1
+            phix = load(file_name);
+            phix = phix.phix;
+        else
+            phix = zeros(theta_sp_num,1);
     end
 
     if save_phi == 1
-        save(sprintf('./phase/210721/ch643_Bw-25%.1f.mat', tp(3)),'phix');
+        save(sprintf('./phase/210713/Op-25_7PP%.1f.mat', tp(3)),'phix');
     %     save('./phase/20201013/gradation.mat','phix');
     end
 
@@ -109,19 +109,20 @@ for tp_z = -25:0.2:-21
     % end
     %     
     if graph == 1
-        ph_n = 1;
+        p_n = 1;
         P = zeros(size(X));
         qc = zeros(length(sp_x),3);
 
         figure (2)
         hold on
         for n = 1:length(sp_x)
-                A = 0;
-                xx = 0;
-                if  ismember(ph_n,use_channels) 
-                    A = 15;
-                end
 
+                xx = 0;
+                if reverse  == 1
+                    if sp_y(n) > 0
+                        xx =1;
+                    end
+                end
 
                 P_im = 0;
 
@@ -132,9 +133,9 @@ for tp_z = -25:0.2:-21
                     P_im = theory_p(k,a,X,Y,Z,sp_x(n),sp_y(n),im_z(n),wall_z*2);
                 end
 
-                ISO = phix(ph_n,1)+pi*xx;
-                P = P+A*P00*abs(1.5*sin(phix(ph_n,2)))*(P0+P_im)*exp(1j*ISO);
-                %P = P+A*P00*(P0+P_im)*exp(1j*ISO);
+                ISO =phix(p_n,1)+pi*xx;
+                P = P+P00*A*abs(1.5*sin(phix(p_n,2)))*(P0+P_im)*exp(1j*ISO);
+
 
                  if pos_mark ==1
 
@@ -151,10 +152,10 @@ for tp_z = -25:0.2:-21
                      q.Color = qc;
                  end
 
-                if n < length(sp_x) && (sp_z(n) ~= sp_z(n+1))
-                    ph_n = ph_n +1;
-                    if ph_n == theta_sp_num+1
-                        ph_n = 1;
+                if n < length(sp_x) && (sp_z(n) ~= sp_z(n+1)) && (  sp_z(n+1) > 69 || sp_z(n+1) < 65 )
+                    p_n = p_n +1;
+                    if p_n == theta_sp_num+1
+                        p_n = 1;
                     end
                 end
 
@@ -167,11 +168,13 @@ for tp_z = -25:0.2:-21
 
         xslice =0;
         yslice =[];
-        zslice = wall_z;
+        zslice = tp_z;
 
         U = poten_cal(P,delta_x,delta_y,delta_z,c0,omega);
         slice(X,Y,Z,U,xslice,yslice,zslice)
-
+        
+        %発散
+        L = 6*del2(U);
         view(90,0)
         xlabel('x (mm)','FontSize',30);
         ylabel('y (mm)','FontSize',30);
@@ -182,7 +185,7 @@ for tp_z = -25:0.2:-21
         shading interp
         c = colorbar;
         c.Label.String = 'The Gor’kov potential';
-        %caxis([0 0.25])
+        caxis([0 0.25])
         axis equal
         point = plot3(tp(1),tp(2),tp(3),'o','Color','w','MarkerSize',8,'MarkerFaceColor',[0.8,0.8,0.8]);
         colormap jet
@@ -209,37 +212,75 @@ for tp_z = -25:0.2:-21
         hold off
 
         figure(3)
+        
+        xlim([min(x),max(x)])
+        ylim([min(y),max(y)])
+        zlim([min(z),max(z)])
         slice(X,Y,Z,Power,xslice,yslice,zslice)
-        view(90,0)
+                view(90,0)
+        xlabel('y (mm)');
+        ylabel('x (mm)');
+        zlabel('z (mm)');
         ax = gca;
         ax.FontSize = 15;
-        xlabel('x (mm)');
-        ylabel('y (mm)');
-        zlabel('z (mm)');
+%         title("Potential field")
         %title("Amplitude field")
-        c = colorbar;
-        c.Label.String = 'Sound pressure level(dB)';
-        caxis([-10,10])
         shading interp
+        c = colorbar;
+        caxis([-10 10])
+%         c.Label.String = 'The Gor’kov potential';
+        c.Label.String = 'sound pressure level(dB)';
+        hold on
+        point = plot3(tp(1),tp(2),tp(3),'o','Color','w','MarkerSize',8,'MarkerFaceColor',[0.8,0.8,0.8]);
+        colormap hot
         axis equal
-        colormap jet
-        F(index) = getframe(gca);
-        for fff = 1:10
-            writeVideo(v,F(index));
-        end
         if save_graph == 1
-            saveas(gcf,sprintf('./210707/Bottlew-25_%.1f.png', tp(3)))
+            saveas(gcf,sprintf('./210621/noref_%.1f.png', tp(3)))
         end
-          L = 6*del2(U);
-          %L_cent = reshape(L(21,21,:),length(z),1);
+        
+        figure(4)
+        slice(X,Y,Z,L,xslice,yslice,zslice)
+                view(90,0)
+        xlabel('y (mm)');
+        ylabel('x (mm)');
+        zlabel('z (mm)');
+        xlim([min(x),max(x)])
+        ylim([min(y),max(y)])
+        zlim([min(z),max(z)])
+        ax = gca;
+        ax.FontSize = 15;
+%         title("Potential field")
+        %title("Amplitude field")
+        shading interp
+        c = colorbar;
+        %caxis([-10 10])
+        c.Label.String = 'the divergence of the gor’kov potential';
+        %c.Label.String = 'Sound pressure level(dB)';
+        hold on
+        point = plot3(tp(1),tp(2),tp(3),'o','Color','w','MarkerSize',8,'MarkerFaceColor',[0.8,0.8,0.8]);
+        colormap hot
+        axis equal
+        if save_graph == 1
+            saveas(gcf,sprintf('./210621/noref_%.1f.png', tp(3)))
+        end
+    %      L = 6*del2(U);
+    %      L_cent = reshape(L(21,21,:),length(z),1);
     %      figure(4)
     % 
     %      plot(L_cent)
-        if save_csv == 1
-            filename = sprintf('./csv/210712/Bottle8-25_DI_minV%.1f.csv', tp(3));
-            table2 = table(reshape(X/delta_x,length(x)*length(y)*length(z),1),reshape(Y/delta_y,length(x)*length(y)*length(z),1),reshape(Z/delta_z,length(x)*length(y)*length(z),1),reshape(L,length(x)*length(y)*length(z),1));
-            writetable(table2,filename);
-        end
+
     end
+    %csvファイルの保存
+    %振幅位相の保存
+%     filename = './csv/210625/w-25_phase_0.csv';
+%     table1 = table(sp_x/delta_x,sp_y/delta_z,sp_z/delta_z,x_r/delta_x,y_r/delta_y,z_r/delta_z);
+%     writetable(table1,filename);
+%     
+    % %音圧の保存
+    if save_csv == 1
+        filename = sprintf('./csv/210706/OpW-25_%.0f.csv', index);
+        table2 = table(reshape(X/delta_x,length(x)*length(y)*length(z),1),reshape(Y/delta_y,length(x)*length(y)*length(z),1),reshape(Z/delta_z,length(x)*length(y)*length(z),1),reshape(L,length(x)*length(y)*length(z),1));
+        writetable(table2,filename);
+    end
+    index = index + 1;
 end
-close(v);

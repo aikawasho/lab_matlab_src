@@ -33,7 +33,7 @@ v.Quality = 100;
 open(v);
 loops = length( -25:0.05:0);
 F(loops) = struct('cdata',[],'colormap',[]);
-for tp_z = -25:0.1:-0
+for tp_z = -25:0.1:--25
     %トラップ位置
     tp = [0,0,tp_z];
     %力表示するかどうか
@@ -105,7 +105,7 @@ for tp_z = -25:0.1:-0
     end
 
     if save_phi == 1
-        save(sprintf('./phase/210713/Op-25_7%.1f.mat', tp(3)),'phix');
+        save(sprintf('./phase/210726/Op12ch-25%.1f.mat', tp(3)),'phix');
     %     save('./phase/20201013/gradation.mat','phix');
     end
 
